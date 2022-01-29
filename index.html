@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Conway's Game of Life</title>
+
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+
+        <header>
+            <h1>Conway's Game of Life</h1>
+        </header>
+
+        <main>
+            <section>
+                <div class="game-buttons__container">
+                    <button type="button" class="game__button game-button--start" >Start</button>
+                    <button type="button" class="game__button game-button--pause" >Pause</button>
+                    <button type="button" class="game__button game-button--reset" >Reset</button>
+                </div>
+
+                <div class="conway-game-life__game-container">
+                    <canvas id="conway-game-life__canvas" width="600px" height="600px">
+                        This is Conway's Game of Life Fallback
+                    </canvas>
+    
+                    <div class="conway-game-life__log-output__container">
+                        <h2>Canvas:</h2>
+                        <p id="conway-game-life__log-output__canvas--sizes"></p>
+                        <p id="conway-game-life__log-output__matrix--cell-size"></p>
+                        <p id="conway-game-life__log-output__matrix--size"></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <script src="index.js" defer></script>
+    </body>
+</html>
