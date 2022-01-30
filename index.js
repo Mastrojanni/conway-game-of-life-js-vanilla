@@ -68,7 +68,7 @@ function initScreenLogOutput() {
     const outputElementMatrixCellSize = document.querySelector(".conway-game-life__log-output__container #conway-game-life__log-output__matrix--cell-size");
     const outputElementMatrixSize = document.querySelector(".conway-game-life__log-output__container #conway-game-life__log-output__matrix--size");
 
-    outputElementCanvasSize.innerText = `Canvas size: (${canvasWidth}x${canvasHeight})`;
+    outputElementCanvasSize.innerText = `Canvas size: (${canvasWidth}x${canvasHeight})px`;
     outputElementMatrixCellSize.innerText = `Matrix single cell size: ${matrixCellSize}px`;
     outputElementMatrixSize.innerText = `Matrix size: (${matrixNumCols}x${matrixNumRows}) cells`;
 };
