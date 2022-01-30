@@ -7,18 +7,22 @@ const SHOW_WARNING_LOG = true;
 const SHOW_ERROR_LOG = true;
 
 /* GAME CONTROL CONSTANTS */
+const CANVAS_BACKGROUND_COLOR = "rgb(118, 118, 118)";
 const GAME_NEXT_CYCLE_DELTA = 1000;
-const MATRIX_CELL_SIZE = 20;
+const MATRIX_GRID_INITIAL_IS_VISIBLE = false;
+const MATRIX_CELL_SIZE = 10;
 const MATRIX_CELL_INNER_OFFSET = 1;
-const MATRIX_SQUARE_SIZE = MATRIX_CELL_SIZE - (MATRIX_CELL_INNER_OFFSET * 2);
+// let MATRIX_SQUARE_SIZE = MATRIX_CELL_SIZE - (MATRIX_CELL_INNER_OFFSET * 2);
+let MATRIX_SQUARE_SIZE = MATRIX_CELL_SIZE;
 
 const GAME_ID_NAME = "conway-game-life__canvas";
 const GAME_CONTROL_BUTTONS_CLASSNAME = "game__button";
 const GAME_CONTROL_BUTTON_START_CLASSNAME = "game-button--start";
 const GAME_CONTROL_BUTTON_PAUSE_CLASSNAME = "game-button--pause";
 const GAME_CONTROL_BUTTON_RESET_CLASSNAME = "game-button--reset";
+const GAME_CONTROL_BUTTON_SHOW_GRID_CLASSNAME = "game-button--grid";
 
-const GAME_SQUARE_COLOR = "white";
+const GAME_SQUARE_COLOR = "#FFF";
 
 /* GLOBAL VARS */
 // canvas
@@ -36,6 +40,7 @@ let matrixNumRows;
 /* GAME STATUS */
 let gameHasStarted;
 let gameHasPaused;
+let gridIsVisible;
 
 
 /* UTILS */
@@ -88,6 +93,21 @@ function clearSquareAt(x, y) {
         MATRIX_SQUARE_SIZE,
         MATRIX_SQUARE_SIZE
     );
+};
+
+function updateMatrixSquareSize(gridIsVisible) {
+
+    if( SHOW_LOG ) console.log("| Starting updateMatrixSquareSize()");
+
+    if( !gridIsVisible ) {
+
+        MATRIX_SQUARE_SIZE = MATRIX_CELL_SIZE;
+        console.log("|-- New Square size is", MATRIX_SQUARE_SIZE);
+        return;
+    };
+
+    MATRIX_SQUARE_SIZE = MATRIX_CELL_SIZE - (MATRIX_CELL_INNER_OFFSET * 2);
+    console.log("|-- New Square size is", MATRIX_SQUARE_SIZE);
 };
 
 /* GAME SCRIPT */
@@ -147,13 +167,28 @@ function drawMatrixGrid() {
         }
 };
 
+function clearMatrixGrid() {            // not really working, thx canvas
+
+    if( SHOW_LOG ) console.log("| Starting drawGrid()");
+
+    canvasCtx.strokeStyle = "rgb(118, 118, 118)";
+
+    for( let i=0; i < matrixNumRows; i++ )      // for Each row
+        for( let j=0; j < matrixNumCols; j++ ) {     // for Each col
+
+            canvasCtx.strokeRect(
+                j * matrixCellSize, i * matrixCellSize,
+                matrixCellSize, matrixCellSize
+            );
+        }
+};
+
 function fillMatrixWithSquares() {
 
     if( SHOW_LOG ) console.log("| Starting fillMatrixWithSquares()");
 
     for( let i=0; i < matrixNumRows; i++ )      // for Each row
         for( let j=0; j < matrixNumCols; j++ ) {     // for Each col
-            matrixMap[i][j] = 1;
             drawSquareAt(j * matrixCellSize, i * matrixCellSize);
         }
 };
@@ -164,7 +199,6 @@ function clearMatrixOfSquares() {
 
     for( let i=0; i < matrixNumRows; i++ )      // for Each row
         for( let j=0; j < matrixNumCols; j++ ) {     // for Each col
-            matrixMap[i][j] = 0;
             clearSquareAt(j * matrixCellSize, i * matrixCellSize);
         }
 };
@@ -259,6 +293,25 @@ function calculateGameNextCycle() {
     }
 
     matrixMap = newMatrixMap;
+};
+
+function showMatrixContent() {
+
+    if( SHOW_LOG ) console.log("| Starting showMatrixContent()");
+
+    for( let i=0; i < matrixNumRows; i++ )     // for Each row
+        for( let j=0; j < matrixNumCols; j++ ) {     // for Each col
+            if( matrixMap[i][j] === 1 )
+                drawSquareAt(j * matrixCellSize, i * matrixCellSize);
+        }
+};
+
+function initCanvas() {
+
+    if( SHOW_LOG ) console.log("| Starting initCanvas()");
+
+    canvasCtx.fillStyle = CANVAS_BACKGROUND_COLOR;
+    canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 };
 
 /* GAME CONTROL BUTTONS HANDLERS */
@@ -365,10 +418,12 @@ function bindHandlerToPauseButton() {
  * handle matrix clean and repopulate
  * @param {*} event 
  */
-function resetButtonHandler(event) {
+ function resetButtonHandler(event) {
 
     if( SHOW_LOG ) console.log("");
     if( SHOW_LOG ) console.log("| One of (many?) reset button is clicked");
+
+    gameHasPaused = true;
 
     initMatrixClearSquares();
     matrixRandomPopulate();
@@ -389,6 +444,61 @@ function bindHandlerToResetButton() {
 
     for( let i=0; i < resetButtonElements.length; i++ )
         resetButtonElements[i].addEventListener("click", resetButtonHandler)
+};
+
+/**
+ * SHOW GRID BUTTON HANDLER
+ * handle show/hide grid on canvas
+ * @param {*} event 
+ */
+function showGridButtonHandler(event) {
+
+    let gameWasPaused;
+
+    if( SHOW_LOG ) console.log("");
+    if( SHOW_LOG ) console.log("| One of (many?) show grid button is clicked");
+
+    gameWasPaused = gameHasPaused;
+    gameHasPaused = true;
+
+    console.log("|== BEFORE: Game pause status was:", gameWasPaused, " now is:", gameHasPaused);
+
+    if( gridIsVisible ) {
+
+        initCanvas();   // reset canvas to its background color
+                        // 'cause clearGrid is not very effective
+        updateMatrixSquareSize(false);
+        showMatrixContent();
+    }
+    else {
+        
+        drawMatrixGrid();
+        updateMatrixSquareSize(true);
+    }
+
+    gridIsVisible = !gridIsVisible;
+
+    if( !gameWasPaused )
+        gameHasPaused = false;
+
+    console.log("|== AFTER: Game pause status was:", gameWasPaused, " now is:", gameHasPaused);
+
+    if( SHOW_LOG ) console.log("");
+};
+
+function bindHandlerToShowGridButton() {
+
+    if( SHOW_LOG ) console.log("| Binding Show Grid Handler to all show grid buttons");
+
+    const showGridButtonElements = document.getElementsByClassName(GAME_CONTROL_BUTTON_SHOW_GRID_CLASSNAME);
+
+    if( !showGridButtonElements ) {
+        if( SHOW_WARNING_LOG ) console.warn("Missing game control SHOW GRID button");
+        return;
+    }
+
+    for( let i=0; i < showGridButtonElements.length; i++ )
+        showGridButtonElements[i].addEventListener("click", showGridButtonHandler)
 };
 
 /**
@@ -433,6 +543,8 @@ function init() {
     if( SHOW_LOG ) console.log("|-- Matrix number of cols is:", matrixNumCols);
     if( SHOW_LOG ) console.log("|-- Matrix number of rows is:", matrixNumRows);
 
+    gridIsVisible = MATRIX_GRID_INITIAL_IS_VISIBLE;
+
     return true;
 };
 
@@ -454,12 +566,14 @@ async function main() {
 
     if( SHOW_LOG ) console.log("| Init successfully executed");
     if( SHOW_LOG ) console.log("");
+
+    initCanvas();
     
     /* MATRIX INIT, with first time effect */
     initMatrixMap();
     
     initScreenLogOutput();
-    await resolveAfterTime(initMatrixGrid, 500);
+    // await resolveAfterTime(initMatrixGrid, 500);
     await resolveAfterTime(initMatrixFillWithSquares, 500);
     await resolveAfterTime(initMatrixClearSquares, 500);
 
@@ -467,12 +581,13 @@ async function main() {
 
     await resolveAfterTime(matrixRandomPopulate, 750);
 
-    calculateGameNextCycle();
+    // calculateGameNextCycle();
 
     enableAllButtons();
     bindHandlerToStartButton();
     bindHandlerToPauseButton();
     bindHandlerToResetButton();
+    bindHandlerToShowGridButton();
 
     /* GAME START */
     if( SHOW_LOG ) console.log("| Waiting for user to press any button");

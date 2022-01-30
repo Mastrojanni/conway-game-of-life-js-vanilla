@@ -87,7 +87,7 @@ section {
     max-width: 100%;
     max-height: 100%;
 
-    border: 1px solid black;
+    border: 1px solid #000;
 }
 
 /* game aside log output */
@@ -98,11 +98,11 @@ section {
     
     padding: 0.5% 1%;
     
-    border: 1px solid black;
+    border: 1px solid #000;
     border-radius: 0.8rem;
 }
 
 .conway-game-life__log-output__container h2 {
 
-    text-decoration: underline white;
+    text-decoration: underline #FFF;
 }
